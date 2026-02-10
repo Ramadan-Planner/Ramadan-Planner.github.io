@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>রমজান প্ল্যানার - Fuad Hassan Rabby</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Login Page -->
+<div id="login-page" class="auth-page">
+  <div class="auth-container">
+    <div class="ramadan-header">
+      <div class="moon-star">🌙</div>
+      <h1 class="ramadan-title">রমজান প্ল্যানার</h1>
+      <p class="ramadan-subtitle">পবিত্র রমজানের জন্য আপনার ব্যক্তিগত গাইড</p>
+    </div>
+    
+    <div class="auth-form">
+      <h2><i class="fas fa-sign-in-alt"></i> লগইন করুন</h2>
+      <input type="text" id="login-username" placeholder="ইউজারনেম">
+      <input type="password" id="login-password" placeholder="পাসওয়ার্ড">
+      <button onclick="loginUser()" class="btn-primary">
+        <i class="fas fa-lock"></i> লগইন
+      </button>
+      <p class="auth-link">অ্যাকাউন্ট নেই? <a href="#" onclick="showSignUp()">রেজিস্ট্রেশন করুন</a></p>
+      <p id="login-msg" class="msg"></p>
+    </div>
+    
+    <div class="ramadan-quote">
+      <p>"রমজান মাস কুরআন নাযিলের মাস, যা মানুষের জন্য হেদায়াত..." (সূরা বাকারা: ১৮৫)</p>
+    </div>
+  </div>
+</div>
+
+<!-- Sign Up Page -->
+<div id="signup-page" class="auth-page" style="display:none;">
+  <div class="auth-container">
+    <div class="ramadan-header">
+      <div class="moon-star">🌙</div>
+      <h1 class="ramadan-title">নতুন অ্যাকাউন্ট</h1>
+      <p class="ramadan-subtitle">রমজান প্ল্যানার শুরু করুন</p>
+    </div>
+    
+    <div class="auth-form">
+      <h2><i class="fas fa-user-plus"></i> রেজিস্ট্রেশন</h2>
+      <input type="email" id="signup-email" placeholder="ইমেইল">
+      <input type="text" id="signup-username" placeholder="ইউজারনেম">
+      <input type="password" id="signup-password" placeholder="পাসওয়ার্ড">
+      <button onclick="signupUser()" class="btn-primary">
+        <i class="fas fa-user-check"></i> অ্যাকাউন্ট তৈরি করুন
+      </button>
+      <p class="auth-link">ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="#" onclick="showLogin()">লগইন করুন</a></p>
+      <p id="signup-msg" class="msg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Ramadan Planner Page -->
+<div id="planner-page" style="display:none;">
+  <!-- App Header -->
+  <div class="app-header">
+    <div class="header-left">
+      <div class="ramadan-badge">
+        <span class="moon-icon">🌙</span>
+        <span class="day-count">দিন ১</span>
+      </div>
+      <div class="header-text">
+        <h1 id="welcome-msg">রমজান প্ল্যানার</h1>
+        <p class="date-display" id="today-date"></p>
+      </div>
+    </div>
+    
+    <div class="header-controls">
+      <button id="theme-toggle" onclick="toggleTheme()" class="header-btn theme-btn" title="থিম পরিবর্তন">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button id="notify-btn" onclick="toggleNotifications()" class="header-btn notify-btn" title="নোটিফিকেশন">
+        <i class="fas fa-bell"></i>
+      </button>
+      <button id="logout-btn" onclick="logoutUser()" class="header-btn logout-btn" title="লগআউট">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-container">
+    
+    <!-- Progress Tracking Section -->
+    <div class="progress-section">
+      <h2 class="section-title"><i class="fas fa-chart-line"></i> প্রোগ্রেস ট্র্যাকিং</h2>
+      <div class="progress-container">
+        <div class="circular-progress">
+          <svg class="progress-ring" width="100" height="100">
+            <circle class="progress-ring-circle" stroke="#10b981" stroke-width="8" fill="transparent" r="42" cx="50" cy="50"/>
+          </svg>
+          <div class="progress-text">
+            <span id="progress-percentage">0%</span>
+            <small>সম্পন্ন</small>
+          </div>
+        </div>
+        
+        <div class="progress-stats">
+          <div class="stat-item">
+            <div class="stat-label">দৈনিক টাস্ক</div>
+            <div class="stat-bar">
+              <div class="stat-fill" id="daily-progress" style="width: 0%"></div>
+            </div>
+            <span id="daily-count" class="stat-count">0/12</span>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-label">অভ্যাস</div>
+            <div class="stat-bar">
+              <div class="stat-fill" id="habit-progress" style="width: 0%"></div>
+            </div>
+            <span id="habit-count" class="stat-count">0/4</span>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-label">প্রিমিয়াম</div>
+            <div class="stat-bar">
+              <div class="stat-fill" id="premium-progress" style="width: 0%"></div>
+            </div>
+            <span id="premium-count" class="stat-count">0/2</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="progress-message" id="progress-message">
+        <i class="fas fa-bullhorn"></i>
+        <span>আজকের যাত্রা শুরু করুন! প্রথম টাস্ক টিক করুন।</span>
+      </div>
+    </div>
+
+    <!-- Daily Tasks Grid -->
+    <div class="tasks-grid">
+      
+      <!-- Daily Intention -->
+      <div class="task-card intention-card">
+        <div class="task-header">
+          <h3><i class="fas fa-brain"></i> দৈনিক নিয়্যাত</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="intention">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <p class="task-text">আজ আমি ধৈর্য ও নেক কাজের চেষ্টা করবো।</p>
+        <div class="card-footer">
+          <span class="card-tag">নিয়্যাত</span>
+        </div>
+      </div>
+
+      <!-- Ayat of the Day -->
+      <div class="task-card ayat-card">
+        <div class="task-header">
+          <h3><i class="fas fa-book-quran"></i> আজকের আয়াত</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="ayat">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div class="ayat-arabic">إِنَّ اللّهَ مَعَ الصَّابِرِينَ</div>
+        <p class="ayat-transliteration">ইন্নাল্লাহা মা'আস সাবিরীন</p>
+        <p class="ayat-meaning">নিশ্চয়ই আল্লাহ ধৈর্যশীলদের সঙ্গে আছেন।</p>
+        <div class="card-footer">
+          <span class="card-tag">সূরা বাকারা: ১৫৩</span>
+        </div>
+      </div>
+
+      <!-- Quran / Surah -->
+      <div class="task-card quran-card">
+        <div class="task-header">
+          <h3><i class="fas fa-book-open"></i> কুরআন তিলাওয়াত</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="surah">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <p class="task-text">আজ সূরা আল-ফাতিহা পড়া হবে।</p>
+        <div class="card-footer">
+          <span class="card-tag">প্রথম সূরা</span>
+          <button class="btn-small" onclick="toggleQuranSection()">
+            <i class="fas fa-expand-alt"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sunnah -->
+      <div class="task-card sunnah-card">
+        <div class="task-header">
+          <h3><i class="fas fa-seedling"></i> হারানো সুন্নাহ</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="sunnah">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <p class="task-text">কাজ শুরুর আগে "বিসমিল্লাহ" বলা। ছোট হলেও বরকত আসে।</p>
+        <div class="card-footer">
+          <span class="card-tag">সুন্নাহ</span>
+        </div>
+      </div>
+
+      <!-- Daily Dua -->
+      <div class="task-card dua-card">
+        <div class="task-header">
+          <h3><i class="fas fa-hands-praying"></i> দৈনিক দুআ</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="dua">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div class="dua-arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى</div>
+        <p class="dua-meaning">হে আল্লাহ, আমি আপনার কাছে হিদায়াত ও তাকওয়া চাই।</p>
+        <div class="card-footer">
+          <span class="card-tag">দুআ</span>
+        </div>
+      </div>
+
+      <!-- Hadith -->
+      <div class="task-card hadith-card">
+        <div class="task-header">
+          <h3><i class="fas fa-scroll"></i> হাদিস</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="hadith">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <p class="task-text">"যে কাজ আল্লাহর নাম ছাড়া শুরু করা হয়, তা বরকতহীন হয়।"</p>
+        <div class="card-footer">
+          <span class="card-tag">ইবনে মাজাহ</span>
+          <button class="btn-small" onclick="toggleHadithSection()">
+            <i class="fas fa-expand-alt"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Reflection -->
+      <div class="task-card reflection-card">
+        <div class="task-header">
+          <h3><i class="fas fa-brain"></i> আত্ম-সমীক্ষা</h3>
+        </div>
+        <div class="reflection-questions">
+          <div class="reflection-item">
+            <label class="checkbox-container">
+              <input type="checkbox" id="reflection1">
+              <span class="checkmark"></span>
+            </label>
+            <span>আজ আমি কোন ভালো অভ্যাস শুরু করেছি?</span>
+          </div>
+          <div class="reflection-item">
+            <label class="checkbox-container">
+              <input type="checkbox" id="reflection2">
+              <span class="checkmark"></span>
+            </label>
+            <span>আজ কোন ভুল ঠিক করবো?</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-tag">সমীক্ষা</span>
+        </div>
+      </div>
+
+      <!-- Gratitude -->
+      <div class="task-card gratitude-card">
+        <div class="task-header">
+          <h3><i class="fas fa-heart"></i> কৃতজ্ঞতা</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="gratitude">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <p class="task-text">আজ আমি কোন নেক কাজ বা কৃতজ্ঞতা প্রকাশ করেছি?</p>
+        <div class="card-footer">
+          <span class="card-tag">শুকরিয়া</span>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="task-card notes-card full-width">
+        <div class="task-header">
+          <h3><i class="fas fa-sticky-note"></i> দৈনিক নোটস</h3>
+          <button onclick="saveNotes()" class="btn-small">
+            <i class="fas fa-save"></i> সংরক্ষণ
+          </button>
+        </div>
+        <textarea id="daily-notes" placeholder="আজকের চিন্তাভাবনা, লক্ষ্য, অনুভূতি বা গুরুত্বপূর্ণ কিছু লিখুন..."></textarea>
+        <div class="notes-footer">
+          <span id="notes-count" class="char-count">0 characters</span>
+        </div>
+      </div>
+
+      <!-- Custom Habits Section -->
+      <div class="task-card habits-card full-width">
+        <div class="task-header">
+          <h3><i class="fas fa-tasks"></i> কাস্টমাইজেবল অভ্যাস ট্র্যাকার</h3>
+          <button onclick="toggleHabitsSection()" class="btn-small">
+            <i class="fas fa-plus"></i> যোগ করুন
+          </button>
+        </div>
+        
+        <!-- Add Habit Form (Initially Hidden) -->
+        <div id="add-habit-form" class="add-habit-form" style="display:none;">
+          <div class="form-row">
+            <input type="text" id="new-habit-name" placeholder="অভ্যাসের নাম (যেমন: ৩০ মিনিট ব্যায়াম)">
+            <input type="color" id="new-habit-color" value="#10b981" title="রং নির্বাচন">
+          </div>
+          <div class="form-row">
+            <select id="new-habit-icon">
+              <option value="🏃">🏃 ব্যায়াম</option>
+              <option value="📖">📖 কুরআন পড়া</option>
+              <option value="💧">💧 পানি পান</option>
+              <option value="🤲">🤲 সুন্নাহ নামাজ</option>
+              <option value="🕌">🕌 মসজিদে যাওয়া</option>
+            </select>
+            <button onclick="addNewHabit()" class="btn-small btn-success">
+              <i class="fas fa-plus"></i> যোগ করুন
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Habits List -->
+        <div class="habits-list" id="custom-habit-list">
+          <!-- Habits will be loaded here -->
+        </div>
+
+        <!-- Default Habits -->
+        <div class="default-habits">
+          <h4><i class="fas fa-star"></i> ডিফল্ট রমজান অভ্যাস</h4>
+          <div class="habit-items">
+            <div class="habit-item">
+              <label class="checkbox-container">
+                <input type="checkbox" id="default-habit1">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">পানি যথেষ্ট খাওয়া</span>
+              <span class="habit-icon">💧</span>
+            </div>
+            <div class="habit-item">
+              <label class="checkbox-container">
+                <input type="checkbox" id="default-habit2">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">কুরআন/দুআ পড়া</span>
+              <span class="habit-icon">📖</span>
+            </div>
+            <div class="habit-item">
+              <label class="checkbox-container">
+                <input type="checkbox" id="default-habit3">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">পরিবারের সাথে ভালো ব্যবহার</span>
+              <span class="habit-icon">❤️</span>
+            </div>
+            <div class="habit-item">
+              <label class="checkbox-container">
+                <input type="checkbox" id="default-habit4">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">গীবত/মিথ্যা থেকে বাঁচা</span>
+              <span class="habit-icon">🚫</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Special Days -->
+      <div class="task-card special-card">
+        <div class="task-header">
+          <h3><i class="fas fa-calendar-star"></i> বিশেষ দিন</h3>
+          <label class="checkbox-container">
+            <input type="checkbox" id="special-day">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <p class="task-text">আজ ১ম দিন। পরের ১০ দিন এক্সট্রা ইবাদত করতে পারো।</p>
+        <div class="card-footer">
+          <span class="card-tag">🌙 লাইলাতুল কদর</span>
+        </div>
+      </div>
+
+      <!-- Premium Tasks -->
+      <div class="task-card premium-card full-width">
+        <div class="task-header">
+          <h3><i class="fas fa-gem"></i> প্রিমিয়াম টাস্কস</h3>
+        </div>
+        <div class="premium-list">
+          <div class="premium-item">
+            <label class="checkbox-container">
+              <input type="checkbox" id="premium1">
+              <span class="checkmark"></span>
+            </label>
+            <span class="premium-text">তাহাজ্জুদ নামাজ পড়া</span>
+            <span class="premium-badge">💎</span>
+          </div>
+          <div class="premium-item">
+            <label class="checkbox-container">
+              <input type="checkbox" id="premium2">
+              <span class="checkmark"></span>
+            </label>
+            <span class="premium-text">এক্সট্রা কুরআন পড়া</span>
+            <span class="premium-badge">💎</span>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- End of Tasks Grid -->
+
+    <!-- Footer -->
+    <div class="app-footer">
+      <p>
+        <i class="fas fa-heart"></i> রমজান মুবারক 
+        <span class="separator">•</span> 
+        Prepared by Fuad Hassan Rabby
+      </p>
+      <p class="footer-note">আল্লাহ আপনার সকল ইবাদত কবুল করুন</p>
+    </div>
+
+  </div> <!-- End of Main Container -->
+
+</div> <!-- End of Planner Page -->
+
+<!-- Quran/Hadith Modal -->
+<div id="quran-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
