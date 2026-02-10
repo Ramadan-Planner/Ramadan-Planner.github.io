@@ -1105,7 +1105,475 @@ function updateProgressMessageAnimation() {
   
   messageElement.appendChild(emojiSpan);
 }
+// District-wise Prayer Times Data
+const prayerTimesData = {
+  dhaka: {
+    iftar: "18:45",
+    sehri_end: "04:35",
+    name: "ঢাকা"
+  },
+  chittagong: {
+    iftar: "18:40",
+    sehri_end: "04:30",
+    name: "চট্টগ্রাম"
+  },
+  sylhet: {
+    iftar: "18:42",
+    sehri_end: "04:32",
+    name: "সিলেট"
+  },
+  rajshahi: {
+    iftar: "18:48",
+    sehri_end: "04:38",
+    name: "রাজশাহী"
+  },
+  khulna: {
+    iftar: "18:43",
+    sehri_end: "04:33",
+    name: "খুলনা"
+  },
+  barisal: {
+    iftar: "18:41",
+    sehri_end: "04:31",
+    name: "বরিশাল"
+  },
+  rangpur: {
+    iftar: "18:50",
+    sehri_end: "04:40",
+    name: "রংপুর"
+  },
+  mymensingh: {
+    iftar: "18:44",
+    sehri_end: "04:34",
+    name: "ময়মনসিংহ"
+  },
+  comilla: {
+    iftar: "18:41",
+    sehri_end: "04:31",
+    name: "কুমিল্লা"
+  },
+  narsingdi: {
+    iftar: "18:46",
+    sehri_end: "04:36",
+    name: "নরসিংদী"
+  }
+};
 
+// Islamic Months in Bengali
+const hijriMonths = [
+  "মুহররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", 
+  "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", 
+  "রমজান", "শাওয়াল", "জিলকদ", "জিলহজ"
+];
+
+// Update prayer times based on selected district
+function updatePrayerTimes() {
+  const districtSelect = document.getElementById('district-select');
+  const selectedDistrict = districtSelect.value;
+  
+  if (selectedDistrict && prayerTimesData[selectedDistrict]) {
+    const times = prayerTimesData[selectedDistrict];
+    
+    // Update display
+    document.getElementById('iftar-time').textContent = times.iftar;
+    document.getElementById('sehri-time').textContent = times.sehri_end;
+    
+    // Update dates
+    const today = new Date();
+    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+    const dateStr = today.toLocaleDateString('bn-BD', options);
+    
+    document.getElementById('iftar-date').textContent = dateStr;
+    document.getElementById('sehri-date').textContent = dateStr;
+    
+    // Start countdown
+    startCountdown(times.iftar, times.sehri_end);
+    
+    // Save selected district to localStorage
+    if (currentUser) {
+      localStorage.setItem(`user_${currentUser}_district`, selectedDistrict);
+    }
+    
+    // Show success message
+    showNotificationPopup('জেলা নির্বাচন', `${times.name} জেলার সময়সূচী আপডেট করা হয়েছে`);
+  }
+}
+
+// Calculate time remaining
+function startCountdown(iftarTime, sehriTime) {
+  function updateCountdown() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    // Iftar countdown
+    const iftarDateTime = new Date(`${today}T${iftarTime}:00`);
+    if (now > iftarDateTime) {
+      // If iftar time has passed, set for tomorrow
+      iftarDateTime.setDate(iftarDateTime.getDate() + 1);
+    }
+    
+    const iftarDiff = iftarDateTime - now;
+    const iftarHours = Math.floor(iftarDiff / (1000 * 60 * 60));
+    const iftarMinutes = Math.floor((iftarDiff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    document.getElementById('iftar-countdown').innerHTML = `
+      <i class="fas fa-hourglass-half"></i>
+      <span>${iftarHours}ঘ ${iftarMinutes}মি</span>
+    `;
+    
+    // Sehri countdown
+    const sehriDateTime = new Date(`${today}T${sehriTime}:00`);
+    if (now > sehriDateTime) {
+      // If sehri time has passed, set for tomorrow
+      sehriDateTime.setDate(sehriDateTime.getDate() + 1);
+    }
+    
+    const sehriDiff = sehriDateTime - now;
+    const sehriHours = Math.floor(sehriDiff / (1000 * 60 * 60));
+    const sehriMinutes = Math.floor((sehriDiff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    document.getElementById('sehri-countdown').innerHTML = `
+      <i class="fas fa-hourglass-half"></i>
+      <span>${sehriHours}ঘ ${sehriMinutes}মি</span>
+    `;
+    
+    // Update current time
+    updateCurrentTime();
+  }
+  
+  updateCountdown();
+  setInterval(updateCountdown, 60000); // Update every minute
+}
+
+// Update current time and Hijri date
+function updateCurrentTime() {
+  const now = new Date();
+  
+  // Current time
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  
+  document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+  
+  // Hijri date (approximation)
+  const hijriYear = 1445; // Current Islamic year (approximate)
+  const hijriMonth = hijriMonths[8]; // Ramadan (9th month)
+  const hijriDay = Math.floor(Math.random() * 29) + 1; // Random day for demo
+  
+  document.getElementById('hijri-date').textContent = 
+    `${hijriDay} ${hijriMonth} ${hijriYear} হিজরি`;
+}
+
+// Enhanced Quran Reading Modal
+function toggleQuranSection() {
+  const modal = document.getElementById('quran-modal');
+  const modalBody = document.getElementById('modal-body');
+  
+  modalBody.innerHTML = `
+    <div class="quran-modal-content">
+      <h2><i class="fas fa-book-quran"></i> সূরা আল-ফাতিহা পড়ুন</h2>
+      
+      <div class="quran-reading-options">
+        <button class="quran-option-btn active" onclick="showArabicText()">
+          <i class="fas fa-font"></i> আরবি পাঠ
+        </button>
+        <button class="quran-option-btn" onclick="showTransliteration()">
+          <i class="fas fa-language"></i> উচ্চারণ
+        </button>
+        <button class="quran-option-btn" onclick="showTranslation()">
+          <i class="fas fa-book"></i> বাংলা অনুবাদ
+        </button>
+        <button class="quran-option-btn" onclick="showTafsir()">
+          <i class="fas fa-graduation-cap"></i> তাফসির
+        </button>
+      </div>
+      
+      <div class="audio-controls">
+        <div class="audio-player">
+          <select class="reciter-select" onchange="playQuranRecitation(this.value)">
+            <option value="">ক্বারি নির্বাচন করুন</option>
+            <option value="hussary">মিশরী আল-হুসারী</option>
+            <option value="sudais">আব্দুর রহমান আস-সুদাইস</option>
+            <option value="shuraim">সা'দ আল-গামিদী</option>
+          </select>
+        </div>
+        <button class="play-btn" onclick="playAudio()">
+          <i class="fas fa-play"></i> তেলাওয়াত শুনুন
+        </button>
+      </div>
+      
+      <div id="quran-content">
+        <!-- Content will be loaded here -->
+      </div>
+      
+      <div class="reading-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text">পড়া হয়েছে: <span>0%</span></div>
+      </div>
+    </div>
+  `;
+  
+  // Show Arabic text by default
+  showArabicText();
+  modal.style.display = 'block';
+}
+
+// Show Arabic text
+function showArabicText() {
+  const contentDiv = document.getElementById('quran-content');
+  contentDiv.innerHTML = `
+    <div class="arabic-text-large">
+      بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴿١﴾ 
+      الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾ 
+      الرَّحْمَٰنِ الرَّحِيمِ ﴿٣﴾ 
+      مَالِكِ يَوْمِ الدِّينِ ﴿ٴ﴾ 
+      إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ﴿٥﴾ 
+      اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ﴿٦﴾ 
+      صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ ﴿٧﴾
+    </div>
+    
+    <div class="reading-tips">
+      <h3><i class="fas fa-lightbulb"></i> পড়ার টিপস:</h3>
+      <ul>
+        <li>উচ্চারণ সঠিকভাবে করুন</li>
+        <li>আয়াতের অর্থ চিন্তা করুন</li>
+        <li>ধীরে ধীরে পড়ুন</li>
+        <li>নিয়ত করুন আল্লাহর সন্তুষ্টির জন্য</li>
+      </ul>
+    </div>
+  `;
+  
+  updateActiveButton('আরবি পাঠ');
+}
+
+// Show transliteration
+function showTransliteration() {
+  const contentDiv = document.getElementById('quran-content');
+  contentDiv.innerHTML = `
+    <div class="transliteration-section">
+      <h4><i class="fas fa-language"></i> সূরা ফাতিহা - উচ্চারণ:</h4>
+      
+      <div class="transliteration-text">
+        <p><strong>আয়াত ১:</strong> বিসমিল্লাহির রাহমানির রাহীম</p>
+        <p><strong>আয়াত ২:</strong> আল-হামদু লিল্লাহি রাব্বিল আলামীন</p>
+        <p><strong>আয়াত ৩:</strong> আর-রাহমানির রাহীম</p>
+        <p><strong>আয়াত ৪:</strong> মালিকি ইয়াউমিদ্দীন</p>
+        <p><strong>আয়াত ৫:</strong> ইয়্যাকা না'বুদু ওয়া ইয়্যাকা নাসতাঈন</p>
+        <p><strong>আয়াত ৬:</strong> ইহদিনাস সিরাতাল মুস্তাকীম</p>
+        <p><strong>আয়াত ৭:</strong> সিরাতাল্লাযিনা আনআমতা আলাইহিম, গাইরিল মাগদুবে আলাইহিম ওয়ালাদ দোয়াল্লীন</p>
+      </div>
+      
+      <div class="pronunciation-guide">
+        <h4><i class="fas fa-volume-up"></i> উচ্চারণ গাইড:</h4>
+        <ul>
+          <li>◌ّ (শদ্দাহ) - হরফকে দ্বিত্ব উচ্চারণ করুন</li>
+          <li>◌َ (ফাতহাহ) - "আ" উচ্চারণ</li>
+          <li>◌ِ (কসরাহ) - "ই" উচ্চারণ</li>
+          <li>◌ُ (দম্মাহ) - "উ" উচ্চারণ</li>
+          <li>ء (হামযাহ) - গলার স্বর</li>
+        </ul>
+      </div>
+    </div>
+  `;
+  
+  updateActiveButton('উচ্চারণ');
+}
+
+// Show translation
+function showTranslation() {
+  const contentDiv = document.getElementById('quran-content');
+  contentDiv.innerHTML = `
+    <div class="translation-section">
+      <h4><i class="fas fa-book"></i> সূরা ফাতিহা - বাংলা অনুবাদ:</h4>
+      
+      <div class="translation-text">
+        <div class="ayat-translation">
+          <h5>আয়াত ১:</h5>
+          <p>পরম করুণাময়, অতি দয়ালু আল্লাহর নামে শুরু করছি।</p>
+        </div>
+        
+        <div class="ayat-translation">
+          <h5>আয়াত ২:</h5>
+          <p>সমস্ত প্রশংসা আল্লাহর জন্য, যিনি বিশ্বজগতের পালনকর্তা।</p>
+        </div>
+        
+        <div class="ayat-translation">
+          <h5>আয়াত ৩:</h5>
+          <p>যিনি পরম করুণাময়, অতি দয়ালু।</p>
+        </div>
+        
+        <div class="ayat-translation">
+          <h5>আয়াত ৪:</h5>
+          <p>যিনি বিচার দিনের মালিক।</p>
+        </div>
+        
+        <div class="ayat-translation">
+          <h5>আয়াত ৫:</h5>
+          <p>আমরা একমাত্র তোমারই ইবাদাত করি এবং একমাত্র তোমারই নিকট সাহায্য চাই।</p>
+        </div>
+        
+        <div class="ayat-translation">
+          <h5>আয়াত ৬:</h5>
+          <p>আমাদেরকে সরল পথ দেখাও।</p>
+        </div>
+        
+        <div class="ayat-translation">
+          <h5>আয়াত ৭:</h5>
+          <p>সেসব লোকের পথ, যাদেরকে তুমি নেয়ামত দান করেছ; যাদের প্রতি তোমার গযব নাযিল হয়নি এবং যারা পথভ্রষ্ট নয়।</p>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  updateActiveButton('বাংলা অনুবাদ');
+}
+
+// Show tafsir
+function showTafsir() {
+  const contentDiv = document.getElementById('quran-content');
+  contentDiv.innerHTML = `
+    <div class="tafsir-section">
+      <h4><i class="fas fa-graduation-cap"></i> সূরা ফাতিহা - সংক্ষিপ্ত তাফসির:</h4>
+      
+      <div class="tafsir-content">
+        <div class="tafsir-point">
+          <h5>সূরা ফাতিহার বিশেষত্ব:</h5>
+          <p>সূরা ফাতিহা কুরআনের সর্বপ্রথম সূরা এবং এটিকে "উম্মুল কিতাব" বা কিতাবের মাতা বলা হয়। এই সূরাকে নামাজের অপরিহার্য অংশ হিসেবে পড়তে হয়।</p>
+        </div>
+        
+        <div class="tafsir-point">
+          <h5>প্রধান শিক্ষা:</h5>
+          <ul>
+            <li>একত্ববাদ - শুধুমাত্র আল্লাহর ইবাদাত</li>
+            <li>সরল পথের প্রার্থনা - সিরাতুল মুস্তাকীম</li>
+            <li>আল্লাহর গুণাবলী - রহমান, রহীম, রব</li>
+            <li>বিচার দিবসের প্রতি বিশ্বাস</li>
+          </ul>
+        </div>
+        
+        <div class="tafsir-point">
+          <h5>রমজানের সাথে সম্পর্ক:</h5>
+          <p>রমজান মাসে কুরআন নাযিল শুরু হয়েছিল। সূরা ফাতিহা কুরআনের সারসংক্ষেপ হিসেবে কাজ করে। রমজানে এই সূরার অর্থ ও তাফসির নিয়ে চিন্তা করা বিশেষ সওয়াবের কাজ।</p>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  updateActiveButton('তাফসির');
+}
+
+// Update active button in Quran modal
+function updateActiveButton(buttonText) {
+  const buttons = document.querySelectorAll('.quran-option-btn');
+  buttons.forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.textContent.includes(buttonText)) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+// Play Quran recitation (demo function)
+function playQuranRecitation(reciter) {
+  if (reciter) {
+    showNotificationPopup('তেলাওয়াত শুরু', `${reciter} এর কন্ঠে সূরা ফাতিহা শুনতে পাবেন (ডেমো)`);
+    
+    // Simulate audio play
+    const playBtn = document.querySelector('.play-btn');
+    playBtn.innerHTML = '<i class="fas fa-pause"></i> তেলাওয়াত চলছে...';
+    playBtn.onclick = function() {
+      showNotificationPopup('তেলাওয়াত বন্ধ', 'তেলাওয়াত বন্ধ করা হয়েছে');
+      playBtn.innerHTML = '<i class="fas fa-play"></i> তেলাওয়াত শুনুন';
+      playBtn.onclick = playAudio;
+    };
+  }
+}
+
+function playAudio() {
+  showNotificationPopup('অডিও প্লেয়ার', 'বাস্তব প্রয়োগে এখানে কুরআনের অডিও যুক্ত করা হবে');
+}
+
+// Load saved district preference
+function loadSavedDistrict() {
+  if (currentUser) {
+    const savedDistrict = localStorage.getItem(`user_${currentUser}_district`);
+    if (savedDistrict && prayerTimesData[savedDistrict]) {
+      document.getElementById('district-select').value = savedDistrict;
+      updatePrayerTimes();
+    }
+  }
+}
+
+// Update showPlanner function to load district
+const originalShowPlanner = showPlanner;
+showPlanner = function() {
+  originalShowPlanner();
+  loadSavedDistrict();
+  updateCurrentTime();
+  setInterval(updateCurrentTime, 1000); // Update time every second
+};
+
+// Update window.onload to include Ramadan day calculation
+window.onload = () => {
+  initTheme();
+  
+  const savedUser = localStorage.getItem("currentUser");
+  if(savedUser){
+    currentUser = savedUser;
+    showPlanner();
+  }
+  
+  // Set today's date
+  const today = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = today.toLocaleDateString('bn-BD', options);
+  document.getElementById('today-date').textContent = dateStr;
+  
+  // Calculate Ramadan day (assuming Ramadan starts on March 10, 2025)
+  const ramadanStart = new Date('2025-03-10');
+  const diffTime = Math.abs(today - ramadanStart);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  
+  if (diffDays > 0 && diffDays <= 30) {
+    document.getElementById('ramadan-day').textContent = `দিন ${diffDays}`;
+    
+    // Update special day text based on Ramadan day
+    const specialDayText = document.querySelector('.special-card .task-text');
+    if (diffDays <= 10) {
+      specialDayText.textContent = `আজ রমজানের ${diffDays}ম দিন। প্রথম ১০ দিনে রহমতের মৌসুম।`;
+    } else if (diffDays <= 20) {
+      specialDayText.textContent = `আজ রমজানের ${diffDays}ম দিন। মাগফিরাতের ১০ দিন চলছে।`;
+    } else {
+      specialDayText.textContent = `আজ রমজানের ${diffDays}ম দিন। শেষ ১০ দিনে লাইলাতুল কদর খুঁজুন।`;
+    }
+  }
+  
+  // Add keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 't') {
+      e.preventDefault();
+      toggleTheme();
+    }
+    if (e.ctrlKey && e.key === 'l') {
+      e.preventDefault();
+      logoutUser();
+    }
+    if (e.ctrlKey && e.key === 'n') {
+      e.preventDefault();
+      toggleNotifications();
+    }
+    if (e.ctrlKey && e.key === 'd') {
+      e.preventDefault();
+      document.getElementById('district-select').focus();
+    }
+  });
+  
+  // Initialize enhanced features
+  initializeEnhancedFeatures();
+};
 // Update the updateProgress function to include animation
 const originalUpdateProgress = updateProgress;
 updateProgress = function() {

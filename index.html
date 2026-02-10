@@ -68,7 +68,7 @@
     <div class="header-left">
       <div class="ramadan-badge">
         <span class="moon-icon">🌙</span>
-        <span class="day-count">দিন ১</span>
+        <span class="day-count" id="ramadan-day">দিন ১</span>
       </div>
       <div class="header-text">
         <h1 id="welcome-msg">রমজান প্ল্যানার</h1>
@@ -92,13 +92,79 @@
   <!-- Main Content -->
   <div class="main-container">
     
+    <!-- Ramadan Time and District Selector -->
+    <div class="time-schedule-section">
+      <h2 class="section-title"><i class="fas fa-clock"></i> রমজান সময়সূচী</h2>
+      <div class="time-schedule-container">
+        <div class="district-selector">
+          <label for="district-select"><i class="fas fa-map-marker-alt"></i> আপনার জেলা নির্বাচন করুন:</label>
+          <select id="district-select" onchange="updatePrayerTimes()">
+            <option value="">জেলা সিলেক্ট করুন</option>
+            <option value="dhaka">ঢাকা</option>
+            <option value="chittagong">চট্টগ্রাম</option>
+            <option value="sylhet">সিলেট</option>
+            <option value="rajshahi">রাজশাহী</option>
+            <option value="khulna">খুলনা</option>
+            <option value="barisal">বরিশাল</option>
+            <option value="rangpur">রংপুর</option>
+            <option value="mymensingh">ময়মনসিংহ</option>
+            <option value="comilla">কুমিল্লা</option>
+            <option value="narsingdi">নরসিংদী</option>
+          </select>
+        </div>
+        
+        <div class="prayer-times">
+          <div class="prayer-time-card iftar-time">
+            <div class="prayer-icon">
+              <i class="fas fa-sun"></i>
+            </div>
+            <div class="prayer-info">
+              <h3>ইফতার</h3>
+              <div class="prayer-time" id="iftar-time">--:--</div>
+              <div class="prayer-date" id="iftar-date">আজ</div>
+            </div>
+            <div class="time-remaining" id="iftar-countdown">
+              <i class="fas fa-hourglass-half"></i>
+              <span>--</span>
+            </div>
+          </div>
+          
+          <div class="prayer-time-card sehri-time">
+            <div class="prayer-icon">
+              <i class="fas fa-moon"></i>
+            </div>
+            <div class="prayer-info">
+              <h3>সেহরি শেষ</h3>
+              <div class="prayer-time" id="sehri-time">--:--</div>
+              <div class="prayer-date" id="sehri-date">আজ</div>
+            </div>
+            <div class="time-remaining" id="sehri-countdown">
+              <i class="fas fa-hourglass-half"></i>
+              <span>--</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="current-time-display">
+          <i class="fas fa-clock"></i>
+          <span id="current-time">--:--:--</span>
+          <span class="hijri-date" id="hijri-date">-- -- ---- হিজরি</span>
+        </div>
+      </div>
+      
+      <div class="reminder-note">
+        <i class="fas fa-info-circle"></i>
+        <span>জেলা সিলেক্ট করলে আপনার এলাকার সঠিক ইফতার ও সেহরি সময় দেখতে পাবেন</span>
+      </div>
+    </div>
+
     <!-- Progress Tracking Section -->
     <div class="progress-section">
       <h2 class="section-title"><i class="fas fa-chart-line"></i> প্রোগ্রেস ট্র্যাকিং</h2>
       <div class="progress-container">
         <div class="circular-progress">
-          <svg class="progress-ring" width="100" height="100">
-            <circle class="progress-ring-circle" stroke="#10b981" stroke-width="8" fill="transparent" r="42" cx="50" cy="50"/>
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring-circle" stroke="#10b981" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
           </svg>
           <div class="progress-text">
             <span id="progress-percentage">0%</span>
@@ -136,6 +202,9 @@
       <div class="progress-message" id="progress-message">
         <i class="fas fa-bullhorn"></i>
         <span>আজকের যাত্রা শুরু করুন! প্রথম টাস্ক টিক করুন।</span>
+        <span class="completion-hint">
+          <i class="fas fa-check-circle"></i> টিক চিহ্নিত করুন যা আপনি সম্পন্ন করেছেন
+        </span>
       </div>
     </div>
 
@@ -146,10 +215,13 @@
       <div class="task-card intention-card">
         <div class="task-header">
           <h3><i class="fas fa-brain"></i> দৈনিক নিয়্যাত</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="intention">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="intention">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">আজ করেছি</span>
+          </div>
         </div>
         <p class="task-text">আজ আমি ধৈর্য ও নেক কাজের চেষ্টা করবো।</p>
         <div class="card-footer">
@@ -161,10 +233,13 @@
       <div class="task-card ayat-card">
         <div class="task-header">
           <h3><i class="fas fa-book-quran"></i> আজকের আয়াত</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="ayat">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="ayat">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
         </div>
         <div class="ayat-arabic">إِنَّ اللّهَ مَعَ الصَّابِرِينَ</div>
         <p class="ayat-transliteration">ইন্নাল্লাহা মা'আস সাবিরীন</p>
@@ -178,16 +253,19 @@
       <div class="task-card quran-card">
         <div class="task-header">
           <h3><i class="fas fa-book-open"></i> কুরআন তিলাওয়াত</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="surah">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="surah">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
         </div>
         <p class="task-text">আজ সূরা আল-ফাতিহা পড়া হবে।</p>
         <div class="card-footer">
           <span class="card-tag">প্রথম সূরা</span>
           <button class="btn-small" onclick="toggleQuranSection()">
-            <i class="fas fa-expand-alt"></i>
+            <i class="fas fa-book-reader"></i> পড়ুন
           </button>
         </div>
       </div>
@@ -196,10 +274,13 @@
       <div class="task-card sunnah-card">
         <div class="task-header">
           <h3><i class="fas fa-seedling"></i> হারানো সুন্নাহ</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="sunnah">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="sunnah">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">আমল করেছি</span>
+          </div>
         </div>
         <p class="task-text">কাজ শুরুর আগে "বিসমিল্লাহ" বলা। ছোট হলেও বরকত আসে।</p>
         <div class="card-footer">
@@ -207,17 +288,28 @@
         </div>
       </div>
 
-      <!-- Daily Dua -->
+      <!-- Daily Dua (Enhanced) -->
       <div class="task-card dua-card">
         <div class="task-header">
           <h3><i class="fas fa-hands-praying"></i> দৈনিক দুআ</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="dua">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="dua">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
         </div>
         <div class="dua-arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى</div>
-        <p class="dua-meaning">হে আল্লাহ, আমি আপনার কাছে হিদায়াত ও তাকওয়া চাই।</p>
+        <div class="dua-transliteration">
+          <strong>উচ্চারণ:</strong> আল্লাহুম্মা ইন্নি আস-আলুকাল হুদা ওয়াত তুক্বা
+        </div>
+        <p class="dua-meaning">
+          <strong>অর্থ:</strong> হে আল্লাহ, আমি আপনার কাছে হিদায়াত ও তাকওয়া চাই।
+        </p>
+        <div class="dua-reference">
+          <strong>সূত্র:</strong> সহিহ মুসলিম
+        </div>
         <div class="card-footer">
           <span class="card-tag">দুআ</span>
         </div>
@@ -227,16 +319,19 @@
       <div class="task-card hadith-card">
         <div class="task-header">
           <h3><i class="fas fa-scroll"></i> হাদিস</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="hadith">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="hadith">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
         </div>
         <p class="task-text">"যে কাজ আল্লাহর নাম ছাড়া শুরু করা হয়, তা বরকতহীন হয়।"</p>
         <div class="card-footer">
           <span class="card-tag">ইবনে মাজাহ</span>
           <button class="btn-small" onclick="toggleHadithSection()">
-            <i class="fas fa-expand-alt"></i>
+            <i class="fas fa-expand-alt"></i> বিস্তারিত
           </button>
         </div>
       </div>
@@ -245,17 +340,20 @@
       <div class="task-card reflection-card">
         <div class="task-header">
           <h3><i class="fas fa-brain"></i> আত্ম-সমীক্ষা</h3>
+          <div class="completion-hint">
+            <i class="fas fa-lightbulb"></i> প্রতিটি প্রশ্ন টিক দিন
+          </div>
         </div>
         <div class="reflection-questions">
           <div class="reflection-item">
-            <label class="checkbox-container">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
               <input type="checkbox" id="reflection1">
               <span class="checkmark"></span>
             </label>
             <span>আজ আমি কোন ভালো অভ্যাস শুরু করেছি?</span>
           </div>
           <div class="reflection-item">
-            <label class="checkbox-container">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
               <input type="checkbox" id="reflection2">
               <span class="checkmark"></span>
             </label>
@@ -271,10 +369,13 @@
       <div class="task-card gratitude-card">
         <div class="task-header">
           <h3><i class="fas fa-heart"></i> কৃতজ্ঞতা</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="gratitude">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="gratitude">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">করেছি</span>
+          </div>
         </div>
         <p class="task-text">আজ আমি কোন নেক কাজ বা কৃতজ্ঞতা প্রকাশ করেছি?</p>
         <div class="card-footer">
@@ -293,6 +394,7 @@
         <textarea id="daily-notes" placeholder="আজকের চিন্তাভাবনা, লক্ষ্য, অনুভূতি বা গুরুত্বপূর্ণ কিছু লিখুন..."></textarea>
         <div class="notes-footer">
           <span id="notes-count" class="char-count">0 characters</span>
+          <span class="hint-text"><i class="fas fa-info-circle"></i> স্বয়ংক্রিয়ভাবে সংরক্ষণ হয়</span>
         </div>
       </div>
 
@@ -335,7 +437,7 @@
           <h4><i class="fas fa-star"></i> ডিফল্ট রমজান অভ্যাস</h4>
           <div class="habit-items">
             <div class="habit-item">
-              <label class="checkbox-container">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
                 <input type="checkbox" id="default-habit1">
                 <span class="checkmark"></span>
               </label>
@@ -343,7 +445,7 @@
               <span class="habit-icon">💧</span>
             </div>
             <div class="habit-item">
-              <label class="checkbox-container">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
                 <input type="checkbox" id="default-habit2">
                 <span class="checkmark"></span>
               </label>
@@ -351,7 +453,7 @@
               <span class="habit-icon">📖</span>
             </div>
             <div class="habit-item">
-              <label class="checkbox-container">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
                 <input type="checkbox" id="default-habit3">
                 <span class="checkmark"></span>
               </label>
@@ -359,7 +461,7 @@
               <span class="habit-icon">❤️</span>
             </div>
             <div class="habit-item">
-              <label class="checkbox-container">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
                 <input type="checkbox" id="default-habit4">
                 <span class="checkmark"></span>
               </label>
@@ -374,10 +476,13 @@
       <div class="task-card special-card">
         <div class="task-header">
           <h3><i class="fas fa-calendar-star"></i> বিশেষ দিন</h3>
-          <label class="checkbox-container">
-            <input type="checkbox" id="special-day">
-            <span class="checkmark"></span>
-          </label>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="special-day">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">চেক করেছি</span>
+          </div>
         </div>
         <p class="task-text">আজ ১ম দিন। পরের ১০ দিন এক্সট্রা ইবাদত করতে পারো।</p>
         <div class="card-footer">
@@ -389,10 +494,13 @@
       <div class="task-card premium-card full-width">
         <div class="task-header">
           <h3><i class="fas fa-gem"></i> প্রিমিয়াম টাস্কস</h3>
+          <div class="completion-hint">
+            <i class="fas fa-check-circle"></i> প্রতিটি টাস্ক টিক দিন
+          </div>
         </div>
         <div class="premium-list">
           <div class="premium-item">
-            <label class="checkbox-container">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
               <input type="checkbox" id="premium1">
               <span class="checkmark"></span>
             </label>
@@ -400,7 +508,7 @@
             <span class="premium-badge">💎</span>
           </div>
           <div class="premium-item">
-            <label class="checkbox-container">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
               <input type="checkbox" id="premium2">
               <span class="checkmark"></span>
             </label>
