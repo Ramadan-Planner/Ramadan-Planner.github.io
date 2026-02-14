@@ -3058,7 +3058,163 @@ body {
     text-align: center;
     justify-content: center;
   }
+  /* Contact Information Styles */
+.contact-info {
+  margin: 30px 0 20px;
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.1), rgba(16, 185, 129, 0.05));
+  border-radius: 20px;
+  border: 2px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #25D366, #0088cc, #0f766e);
+}
+
+.contact-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-accent);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+.contact-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 25px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  border: 1px solid transparent;
+}
+
+.contact-btn i {
+  font-size: 20px;
+}
+
+/* WhatsApp Button */
+.whatsapp {
+  background: #25D366;
+  color: white;
+  box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp:hover {
+  background: #128C7E;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
+}
+
+/* Telegram Button */
+.telegram {
+  background: #0088cc;
+  color: white;
+  box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+}
+
+.telegram:hover {
+  background: #0077b5;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 136, 204, 0.4);
+}
+
+/* Phone Button */
+.phone {
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+  color: white;
+  box-shadow: 0 5px 15px rgba(15, 118, 110, 0.3);
+}
+
+.phone:hover {
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(15, 118, 110, 0.4);
+}
+
+.contact-note {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 15px;
+  background: var(--bg-primary);
+  border-radius: 10px;
+  border-left: 4px solid var(--warning);
+  text-align: left;
+  margin-top: 15px;
+}
+
+.contact-note i {
+  color: var(--warning);
+  margin-right: 8px;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .contact-info {
+  background: linear-gradient(135deg, rgba(94, 234, 212, 0.1), rgba(16, 185, 129, 0.05));
+}
+
+[data-theme="dark"] .contact-note {
+  background: var(--bg-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contact-links {
+    flex-direction: column;
+    align-items: center;
+  }
   
+  .contact-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 15px;
+  }
+  
+  .contact-title {
+    font-size: 16px;
+  }
+  
+  .contact-note {
+    font-size: 13px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-info {
+    padding: 20px 15px;
+  }
+  
+  .contact-btn {
+    font-size: 14px;
+  }
+  
+  .contact-btn i {
+    font-size: 18px;
+  }
+}
   .view-schedule-btn {
     width: 100%;
     padding: 15px;
