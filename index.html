@@ -1,560 +1,527 @@
-I've updated the memory gallery to use your local photo filenames. Now, the first image points to your specific file, and the others use a simple numbered format (photo1.jpg, photo2.jpg, etc.) so you can easily replace them with your own pictures. The rest of the design remains unchanged.
-```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>for my princess only 💗</title>
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Quicksand', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      overflow-x: hidden;
-      background: linear-gradient(145deg, #ffb6c1, #ff69b4, #ffc0cb);
-      background-attachment: fixed;
-      min-height: 100vh;
-    }
-    /* heartbeat once */
-    .heartbeat-init {
-      animation: gentleHeart 1.8s ease-in-out 1;
-    }
-    @keyframes gentleHeart {
-      0% { transform: scale(1); }
-      15% { transform: scale(1.02); }
-      30% { transform: scale(1); }
-      45% { transform: scale(1.015); }
-      60% { transform: scale(1); }
-    }
-    /* sparkle hover (optional, but works on touch as static) */
-    .sparkle-hover {
-      position: fixed;
-      pointer-events: none;
-      width: 8px; height: 8px;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 50%;
-      box-shadow: 0 0 20px #ffb6c1, 0 0 30px #ff69b4;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      opacity: 0;
-    }
-    body:hover .sparkle-hover { opacity: 1; }
-    /* progress bar */
-    #progress-bar {
-      position: fixed;
-      top: 0; left: 0;
-      height: 4px;
-      width: 0%;
-      background: linear-gradient(90deg, #ff9eb5, #ff4d6d);
-      box-shadow: 0 0 12px #ffb6c1;
-      z-index: 1000;
-    }
-    /* floating hearts bg */
-    .hearts-bg {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-    .heart {
-      position: absolute;
-      font-size: 1.8rem;
-      opacity: 0.4;
-      color: #ffe4ec;
-      animation: floatUp 12s linear infinite;
-      bottom: -10%;
-      user-select: none;
-    }
-    @keyframes floatUp {
-      0% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
-      100% { transform: translateY(-100vh) rotate(20deg); opacity: 0; }
-    }
-    /* sections */
-    section {
-      position: relative;
-      z-index: 5;
-      width: 100%;
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .full-screen {
-      min-height: 100vh;
-      justify-content: center;
-    }
-    .glass-card {
-      background: rgba(255, 240, 245, 0.3);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      padding: 2.2rem 1.5rem;
-      max-width: 800px;
-      width: 95%;
-      margin: 1rem auto;
-    }
-    .btn {
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(8px);
-      padding: 1rem 2.5rem;
-      border-radius: 50px;
-      border: 1.5px solid white;
-      font-weight: 600;
-      font-size: 1.4rem;
-      color: #a63b5b;
-      box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
-      transition: all 0.2s ease;
-      cursor: pointer;
-      display: inline-block;
-      -webkit-appearance: none;
-    }
-    .btn:active {
-      background: #ffb6c1;
-      box-shadow: 0 0 30px #ff69b4;
-      transform: scale(1.02);
-    }
-    h1, h2 {
-      font-weight: 500;
-      text-shadow: 2px 2px 12px rgba(255, 230, 240, 0.9);
-      word-break: break-word;
-    }
-    .hero-text {
-      font-size: clamp(2.8rem, 12vw, 5.5rem);
-      font-weight: 600;
-      color: #4a1e2f;
-    }
-    /* typing effect */
-    .typewriter {
-      border-right: 3px solid #b3446b;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      animation: typing 3.5s steps(30, end) forwards, blink 0.8s infinite;
-      max-width: fit-content;
-      margin: 0 auto;
-    }
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-    @keyframes blink { 50% { border-color: transparent; } }
-
-    /* memory grid */
-    .grid-6 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      width: 100%;
-    }
-    @media (max-width: 500px) {
-      .grid-6 { grid-template-columns: repeat(2, 1fr); }
-    }
-    .memory-item {
-      border-radius: 24px;
-      overflow: hidden;
-      aspect-ratio: 1/1;
-      background: #ffd9e6;
-      box-shadow: 0 8px 18px rgba(255, 80, 140, 0.2);
-      transition: 0.2s;
-    }
-    .memory-item img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-      cursor: pointer;
-      pointer-events: auto;
-    }
-    .memory-item:active img {
-      transform: scale(1.1);
-    }
-
-    /* modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.2);
-      backdrop-filter: blur(8px);
-      z-index: 2000;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
-    }
-    .modal-content {
-      background: rgba(255, 230, 245, 0.95);
-      backdrop-filter: blur(14px);
-      border-radius: 40px;
-      padding: 1.5rem;
-      max-width: 90%;
-      width: 400px;
-      text-align: center;
-      animation: scaleUp 0.25s;
-    }
-    .modal-content img { width: 100%; border-radius: 30px; margin-bottom: 0.8rem; }
-    @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-    /* reason cards */
-    .reasons-wrapper {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.8rem;
-    }
-    .reason-card {
-      background: rgba(255, 220, 235, 0.6);
-      backdrop-filter: blur(4px);
-      border-radius: 40px;
-      padding: 0.9rem 1.6rem;
-      box-shadow: 0 4px 18px #ffb6c1;
-      font-size: 1.2rem;
-      font-weight: 500;
-      transition: 0.15s;
-      border: 1px solid white;
-      flex: 0 1 auto;
-    }
-    .reason-card:active {
-      box-shadow: 0 0 28px #ff1493;
-      transform: translateY(-4px);
-    }
-
-    /* whatsapp bubbles */
-    .chat-area {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-    .chat-bubble-left, .chat-bubble-right {
-      max-width: 80%;
-      padding: 1rem 1.5rem;
-      border-radius: 30px;
-      margin: 0.4rem;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(12px);
-      border: 1px solid white;
-      word-break: break-word;
-    }
-    .chat-bubble-right {
-      align-self: flex-end;
-      background: rgba(255, 200, 230, 0.8);
-    }
-    .dot-flash::after {
-      content: '...';
-      animation: dotty 1.5s steps(1) infinite;
-      display: inline-block;
-      width: 24px;
-    }
-    @keyframes dotty { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
-
-    /* meter */
-    .meter-bar {
-      width: 90%; max-width: 500px; height: 38px;
-      background: rgba(255,240,245,0.4);
-      border-radius: 40px;
-      margin: 1.5rem 0;
-      overflow: hidden;
-      border: 1px solid white;
-    }
-    .meter-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #ff80ab, #ff4d6d);
-      border-radius: 40px;
-      box-shadow: 0 0 25px #ffb6c1;
-      transition: width 2.2s ease;
-      text-align: right;
-      padding-right: 12px;
-      color: white;
-      font-weight: bold;
-      line-height: 38px;
-      font-size: 1.1rem;
-    }
-
-    /* hidden message */
-    .heart-icon {
-      font-size: 5rem;
-      cursor: pointer;
-      filter: drop-shadow(0 0 18px #ff9ebb);
-      transition: 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .heart-icon:active { transform: scale(1.2); }
-    .popup-msg {
-      display: none;
-      margin-top: 1.2rem;
-      background: rgba(255, 240, 250, 0.9);
-      backdrop-filter: blur(12px);
-      border-radius: 60px;
-      padding: 1.2rem 2rem;
-      font-size: 1.8rem;
-      border: 2px solid white;
-      color: #a13e5c;
-      text-align: center;
-    }
-
-    /* final section */
-    .final-section {
-      background: linear-gradient(145deg, #d64e7a, #a12f55, #5f1a33);
-      color: #ffeef4;
-      position: relative;
-      overflow: hidden;
-    }
-    .petal {
-      position: absolute;
-      color: #ffdbdb;
-      font-size: 2.2rem;
-      opacity: 0.45;
-      animation: fall 7s linear infinite;
-      top: -10%;
-    }
-    @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
-    .shake { animation: shake 0.3s ease; }
-    @keyframes shake { 0%,100%{ transform: translateX(0); } 20%{ transform: translateX(-8px); } 40%{ transform: translateX(8px); } 60%{ transform: translateX(-4px); } 80%{ transform: translateX(4px); } }
-    .blur-bg { filter: blur(4px); transition: 0.2s; }
-
-    /* new extra features (8+ addons) */
-    .floating-counter, .cute-toggle, .pulse-message, .love-calculator, .virtual-hug, .memory-lane-badge, .daily-quote, .surprise-gift {
-      margin: 1rem 0;
-    }
-    .badge-mini {
-      background: rgba(255,255,240,0.3);
-      backdrop-filter: blur(6px);
-      border-radius: 60px;
-      padding: 0.7rem 1.8rem;
-      border: 1px solid white;
-      font-size: 1.4rem;
-    }
-    .fingerprint-touch {
-      transition: 0.1s;
-    }
-    .fingerprint-touch:active { background: #ffc0cb; }
-    /* responsive touch improvements */
-    button, .btn, .heart-icon, .memory-item {
-      touch-action: manipulation;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>রমজান প্ল্যানার - Fuad Hassan Rabby</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="heartbeat-init">
-  <div class="sparkle-hover" id="sparkle"></div>
-  <div id="progress-bar"></div>
-  <div class="hearts-bg" id="heartsBg"></div>
+<body>
 
-  <!-- entry screen -->
-  <section id="entry" class="full-screen" style="backdrop-filter: blur(5px);">
-    <div class="glass-card" style="text-align: center;">
-      <h1 style="font-size: clamp(2.2rem,7vw,4rem); color: #511d33;">Ei page ta sudhu tomar jonno…</h1>
-      <button class="btn" id="enterBtn" style="margin-top: 2.2rem;">Enter My Heart 💗</button>
+<!-- Login Page -->
+<div id="login-page" class="auth-page">
+  <div class="auth-container">
+    <div class="ramadan-header">
+      <div class="moon-star">🌙</div>
+      <h1 class="ramadan-title">রমজান প্ল্যানার</h1>
+      <p class="ramadan-subtitle">পবিত্র রমজানের জন্য আপনার ব্যক্তিগত গাইড</p>
     </div>
-  </section>
-
-  <!-- main content (hidden until entry) -->
-  <div id="mainContent" style="display: none;">
-    <!-- 2. hero -->
-    <section class="full-screen">
-      <div class="glass-card" style="text-align: center;">
-        <h1 class="hero-text typewriter" style="display: inline-block;">Sorry My Princess 👑</h1>
-        <p style="font-size: 1.8rem; margin: 1.2rem 0; font-weight: 300;">Tumi raag korle amar duniya ta silent hoye jai…</p>
-        <div style="font-size: 3rem;">💔🌸</div>
-      </div>
-    </section>
-
-    <!-- 3. emotional sorry letter -->
-    <section>
-      <div class="glass-card" style="text-align: left;">
-        <h2 style="font-size: 2.4rem;">💌 sorry</h2>
-        <p id="typewriterLetter" style="font-size: 1.4rem; line-height: 1.7;"></p>
-      </div>
-    </section>
-
-    <!-- 4. memory gallery with user's local photos (first specific, then generic) -->
-
-
-    <!-- 5. why i love you – 12 reasons -->
-    <section style="background: #ffe4ed; padding: 3rem 1rem;">
-      <h2>💕 why i love you 💕</h2>
-      <div class="reasons-wrapper">
-        <div class="reason-card">1. your laugh</div><div class="reason-card">2. kindness</div>
-        <div class="reason-card">3. crazy talks</div><div class="reason-card">4. your eyes</div>
-        <div class="reason-card">5. stubbornness</div><div class="reason-card">6. smile</div>
-        <div class="reason-card">7. care</div><div class="reason-card">8. patience</div>
-        <div class="reason-card">9. strength</div><div class="reason-card">10. everything</div>
-        <div class="reason-card">11. your scent</div><div class="reason-card">12. the way you say my name</div>
-      </div>
-    </section>
-
-    <!-- 6. chat simulation -->
-    <section>
-      <div class="glass-card chat-area">
-        <div class="chat-bubble-left">tumi ki amaye khub miss koro?</div>
-        <div class="chat-bubble-right">haay... hajar bar 💕</div>
-        <div class="chat-bubble-left">sorry jananor ekta upay?</div>
-        <div class="chat-bubble-right dot-flash">typing</div>
-        <div class="chat-bubble-right">tumi je amar prithibi</div>
-        <div style="margin: 1.5rem 0 0; font-size: 1.7rem;">Real life eo jeno last message ta I Love You hoy ❤️</div>
-      </div>
-    </section>
-
-    <!-- 7. 8+ new romantic features (all touch friendly) -->
-    <section><div class="glass-card" style="text-align: center;"><span class="badge-mini">🤗 virtual hugs sent: 786</span></div></section>
-    <section><div class="glass-card" style="text-align: center;" onclick="this.querySelector('span').innerText='raag level 0% 🕊️'"><span class="badge-mini">raag level 99% → tap to calm</span></div></section>
-    <section><div class="glass-card pulse-message" style="background:rgba(255,220,240,0.5);">💓 heartbeat : 72 bpm (only for you)</div></section>
-    <section><div class="glass-card love-calculator" onclick="this.innerHTML='💞 we = 100% match'">💘 tap for love %</div></section>
-   
-    <section><div class="glass-card" onclick="this.innerHTML='“you are my today and all my tomorrows”'">✨ romantic quote — tap</div></section>
-    <section><div class="glass-card" onclick="alert('Ummmmmmmmmmmaaahhh🌸')">🎁 surprise gift (tap)</div></section>
-    <section><div class="glass-card fingerprint-touch">❤️ touch me — i love you</div></section>
-
-    <!-- 8. miss you meter -->
-    <section>
-      <h2>Miss You Meter 💘</h2>
-      <div class="meter-bar"><div class="meter-fill" id="missMeter">0%</div></div>
-      <p>Missing You Level: <span id="meterText">0%</span></p>
-    </section>
-
-    <!-- 9. hidden secret message -->
-    <section>
-      <div class="heart-icon" id="secretHeart">💖</div>
-      <div id="secretPopup" class="popup-msg">Tumi amar future wife material 😌💍</div>
-    </section>
-
-    <!-- 10. final emotional ending -->
-    <section class="full-screen final-section" id="finalSection">
-      <div style="position: relative; z-index: 10; text-align: center;">
-        <h1 style="font-size: clamp(2.5rem, 8vw, 4rem);">Tumi raag thakle ami jiti na…<br>Ami sudhu hari 😔<br>Ar ami tomar kache hartei chai ❤️</h1>
-        <button class="btn" id="forgiveBtn" style="margin-top: 2.5rem; font-size: 2rem;">Forgive Me?</button>
-      </div>
-      <div id="petal-container"></div>
-    </section>
+    
+    <div class="auth-form">
+      <h2><i class="fas fa-sign-in-alt"></i> লগইন করুন</h2>
+      <input type="text" id="login-username" placeholder="ইউজারনেম">
+      <input type="password" id="login-password" placeholder="পাসওয়ার্ড">
+      <button onclick="loginUser()" class="btn-primary">
+        <i class="fas fa-lock"></i> লগইন
+      </button>
+      <p class="auth-link">অ্যাকাউন্ট নেই? <a href="#" onclick="showSignUp()">রেজিস্ট্রেশন করুন</a></p>
+      <p id="login-msg" class="msg"></p>
+    </div>
+    
+    <div class="ramadan-quote">
+      <p>"রমজান মাস কুরআন নাযিলের মাস, যা মানুষের জন্য হেদায়াত..." (সূরা বাকারা: ১৮৫)</p>
+    </div>
   </div>
+</div>
 
-  <!-- modal -->
-  <div id="imageModal" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <img id="modalImg" src="" alt=""><p id="modalCaption" style="font-size: 2rem;"></p>
+<!-- Sign Up Page -->
+<div id="signup-page" class="auth-page" style="display:none;">
+  <div class="auth-container">
+    <div class="ramadan-header">
+      <div class="moon-star">🌙</div>
+      <h1 class="ramadan-title">নতুন অ্যাকাউন্ট</h1>
+      <p class="ramadan-subtitle">রমজান প্ল্যানার শুরু করুন</p>
+    </div>
+    
+    <div class="auth-form">
+      <h2><i class="fas fa-user-plus"></i> রেজিস্ট্রেশন</h2>
+      <input type="email" id="signup-email" placeholder="ইমেইল">
+      <input type="text" id="signup-username" placeholder="ইউজারনেম">
+      <input type="password" id="signup-password" placeholder="পাসওয়ার্ড">
+      <button onclick="signupUser()" class="btn-primary">
+        <i class="fas fa-user-check"></i> অ্যাকাউন্ট তৈরি করুন
+      </button>
+      <p class="auth-link">ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="#" onclick="showLogin()">লগইন করুন</a></p>
+      <p id="signup-msg" class="msg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Ramadan Planner Page -->
+<div id="planner-page" style="display:none;">
+  <!-- App Header -->
+  <div class="app-header">
+    <div class="header-left">
+      <div class="ramadan-badge">
+        <span class="moon-icon">🌙</span>
+        <span class="day-count" id="ramadan-day">দিন ১</span>
+      </div>
+      <div class="header-text">
+        <h1 id="welcome-msg">রমজান প্ল্যানার</h1>
+        <p class="date-display" id="today-date"></p>
+      </div>
+    </div>
+    
+    <div class="header-controls">
+      <button id="theme-toggle" onclick="toggleTheme()" class="header-btn theme-btn" title="থিম পরিবর্তন">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button id="notify-btn" onclick="toggleNotifications()" class="header-btn notify-btn" title="নোটিফিকেশন">
+        <i class="fas fa-bell"></i>
+      </button>
+      <button id="logout-btn" onclick="logoutUser()" class="header-btn logout-btn" title="লগআউট">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
     </div>
   </div>
 
-  <script>
-    // sparkle (optional for mouse)
-    document.addEventListener('mousemove', (e) => {
-      const s = document.getElementById('sparkle');
-      if(s) { s.style.left = e.pageX + 'px'; s.style.top = e.pageY + 'px'; }
-    });
+  <!-- Main Content -->
+  <div class="main-container">
+    
+    <!-- Ramadan Time and District Selector -->
+<!-- District Schedule Section - এইটা আপনার planner page এ দিন -->
+<div class="district-schedule-section">
+  <div class="district-header">
+    <div class="district-badge">
+      <i class="fas fa-calendar-alt"></i>
+      <span id="selected-district">ঢাকা</span>
+    </div>
+    
+    <select id="districtSelect">
+      <option value="">-- জেলা নির্বাচন করুন --</option>
+      <option value="dhaka">ঢাকা</option>
+      <option value="chittagong">চট্টগ্রাম</option>
+      <option value="sylhet">সিলেট</option>
+      <option value="rajshahi">রাজশাহী</option>
+      <option value="khulna">খুলনা</option>
+      <option value="barisal">বরিশাল</option>
+      <option value="rangpur">রংপুর</option>
+      <option value="mymensingh">ময়মনসিংহ</option>
+      <option value="comilla">কুমিল্লা</option>
+      <option value="narsingdi">নরসিংদী</option>
+    </select>
+    
+    <!-- সময়সূচী দেখুন বাটন -->
+    <button class="view-schedule-btn" onclick="showDistrictSchedule()">
+      <i class="fas fa-eye"></i>
+      <span>সময়সূচী দেখুন</span>
+    </button>
+  </div>
+  
+  <div class="schedule-container" id="scheduleContainer">
+    <div class="coming-soon">
+      <i class="fas fa-moon"></i>
+      <h3>রমজান সময়সূচী</h3>
+      <p>জেলা নির্বাচন করে "সময়সূচী দেখুন" বাটনে ক্লিক করুন</p>
+    </div>
+  </div>
+  
+  <div class="schedule-footer" id="scheduleFooter"></div>
+</div>
 
-    // progress bar
-    window.addEventListener('scroll', () => {
-      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      document.getElementById('progress-bar').style.width = (winScroll / height) * 100 + '%';
-    });
+<!-- Image Zoom Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+  <span class="close-image" onclick="closeImageModal(event)">&times;</span>
+  <img id="zoomedImage" src="" alt="Zoomed Schedule">
+</div>
+    <!-- Progress Tracking Section -->
+    <div class="progress-section">
+      <h2 class="section-title"><i class="fas fa-chart-line"></i> প্রোগ্রেস ট্র্যাকিং</h2>
+      <div class="progress-container">
+        <div class="circular-progress">
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring-circle" stroke="#10b981" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+          </svg>
+          <div class="progress-text">
+            <span id="progress-percentage">0%</span>
+            <small>সম্পন্ন</small>
+          </div>
+        </div>
+        
+        <div class="progress-stats">
+          <div class="stat-item">
+            <div class="stat-label">দৈনিক টাস্ক</div>
+            <div class="stat-bar">
+              <div class="stat-fill" id="daily-progress" style="width: 0%"></div>
+            </div>
+            <span id="daily-count" class="stat-count">0/12</span>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-label">অভ্যাস</div>
+            <div class="stat-bar">
+              <div class="stat-fill" id="habit-progress" style="width: 0%"></div>
+            </div>
+            <span id="habit-count" class="stat-count">0/4</span>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-label">প্রিমিয়াম</div>
+            <div class="stat-bar">
+              <div class="stat-fill" id="premium-progress" style="width: 0%"></div>
+            </div>
+            <span id="premium-count" class="stat-count">0/2</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="progress-message" id="progress-message">
+        <i class="fas fa-bullhorn"></i>
+        <span>আজকের যাত্রা শুরু করুন! প্রথম টাস্ক টিক করুন।</span>
+        <span class="completion-hint">
+          <i class="fas fa-check-circle"></i> টিক চিহ্নিত করুন যা আপনি সম্পন্ন করেছেন
+        </span>
+      </div>
+    </div>
 
-    // hearts generator
-    function createHeart() {
-      const h = document.createElement('div');
-      h.classList.add('heart'); h.innerHTML = '💗';
-      h.style.left = Math.random() * 100 + '%';
-      h.style.animationDuration = (Math.random() * 8 + 6) + 's';
-      h.style.fontSize = (Math.random() * 30 + 20) + 'px';
-      document.querySelector('.hearts-bg').appendChild(h);
-      setTimeout(() => h.remove(), 14000);
-    }
-    setInterval(createHeart, 600);
+    <!-- Daily Tasks Grid -->
+    <div class="tasks-grid">
+      
+      <!-- Daily Intention -->
+      <div class="task-card intention-card">
+        <div class="task-header">
+          <h3><i class="fas fa-brain"></i> দৈনিক নিয়্যাত</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="intention">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">আজ করেছি</span>
+          </div>
+        </div>
+        <p class="task-text">আজ আমি ধৈর্য ও নেক কাজের চেষ্টা করবো।</p>
+        <div class="card-footer">
+          <span class="card-tag">নিয়্যাত</span>
+        </div>
+      </div>
 
-    // entry
-    document.getElementById('enterBtn').addEventListener('click', () => {
-      document.getElementById('entry').style.display = 'none';
-      document.getElementById('mainContent').style.display = 'block';
-      window.scrollTo(0,0);
-      setTimeout(() => {
-        document.getElementById('missMeter').style.width = '100%';
-        document.getElementById('missMeter').innerText = '9999%';
-        document.getElementById('meterText').innerText = '9999% 💘';
-      }, 600);
-    });
+      <!-- Ayat of the Day -->
+      <div class="task-card ayat-card">
+        <div class="task-header">
+          <h3><i class="fas fa-book-quran"></i> আজকের আয়াত</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="ayat">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
+        </div>
+        <div class="ayat-arabic">إِنَّ اللّهَ مَعَ الصَّابِرِينَ</div>
+        <p class="ayat-transliteration">ইন্নাল্লাহা মা'আস সাবিরীন</p>
+        <p class="ayat-meaning">নিশ্চয়ই আল্লাহ ধৈর্যশীলদের সঙ্গে আছেন।</p>
+        <div class="card-footer">
+          <span class="card-tag">সূরা বাকারা: ১৫৩</span>
+        </div>
+      </div>
 
-    // typewriter
-    const letterP = document.getElementById('typewriterLetter');
-    const sorryText = "Ami jani tumi kosto peyecho... prithibir shob theke shundor mukh ta jokhon mon kharap kore, amar buk ta faate jay. Tumi chara amar kono exists na. Please ekbar khule kotha bolo, ami shune nebo, thik korbo. I love you more than anything.";
-    let i = 0;
-    function typeNext() { if (i < sorryText.length) { letterP.innerHTML += sorryText.charAt(i); i++; setTimeout(typeNext, 40); } }
-    const obs = new IntersectionObserver((e) => { e.forEach(entry => { if(entry.isIntersecting && i===0) typeNext(); }); });
-    if(letterP) obs.observe(letterP);
+      <!-- Quran / Surah -->
+      <div class="task-card quran-card">
+        <div class="task-header">
+          <h3><i class="fas fa-book-open"></i> কুরআন তিলাওয়াত</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="surah">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
+        </div>
+        <p class="task-text">আজ সূরা আল-ফাতিহা পড়া হবে।</p>
+        <div class="card-footer">
+          <span class="card-tag">প্রথম সূরা</span>
+          <button class="btn-small" onclick="toggleQuranSection()">
+            <i class="fas fa-book-reader"></i> পড়ুন
+          </button>
+        </div>
+      </div>
 
-    // modal functions using local images
-    window.openModal = (src, cap) => {
-      document.getElementById('modalImg').src = src;
-      document.getElementById('modalCaption').innerText = cap;
-      document.getElementById('imageModal').style.display = 'flex';
-    };
-    window.closeModal = () => document.getElementById('imageModal').style.display = 'none';
+      <!-- Sunnah -->
+      <div class="task-card sunnah-card">
+        <div class="task-header">
+          <h3><i class="fas fa-seedling"></i> হারানো সুন্নাহ</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="sunnah">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">আমল করেছি</span>
+          </div>
+        </div>
+        <p class="task-text">কাজ শুরুর আগে "বিসমিল্লাহ" বলা। ছোট হলেও বরকত আসে।</p>
+        <div class="card-footer">
+          <span class="card-tag">সুন্নাহ</span>
+        </div>
+      </div>
 
-    // secret heart
-    document.getElementById('secretHeart').addEventListener('click', function() {
-      const pop = document.getElementById('secretPopup');
-      pop.style.display = 'block';
-      setTimeout(() => pop.style.display = 'none', 2800);
-    });
+      <!-- Daily Dua (Enhanced) -->
+      <div class="task-card dua-card">
+        <div class="task-header">
+          <h3><i class="fas fa-hands-praying"></i> দৈনিক দুআ</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="dua">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
+        </div>
+        <div class="dua-arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى</div>
+        <div class="dua-transliteration">
+          <strong>উচ্চারণ:</strong> আল্লাহুম্মা ইন্নি আস-আলুকাল হুদা ওয়াত তুক্বা
+        </div>
+        <p class="dua-meaning">
+          <strong>অর্থ:</strong> হে আল্লাহ, আমি আপনার কাছে হিদায়াত ও তাকওয়া চাই।
+        </p>
+        <div class="dua-reference">
+          <strong>সূত্র:</strong> সহিহ মুসলিম
+        </div>
+        <div class="card-footer">
+          <span class="card-tag">দুআ</span>
+        </div>
+      </div>
 
-    // forgive button cinematic
-    document.getElementById('forgiveBtn').addEventListener('click', function() {
-      const finalSec = document.getElementById('finalSection');
-      finalSec.classList.add('shake');
-      document.body.classList.add('blur-bg');
-      setTimeout(() => {
-        document.body.classList.remove('blur-bg');
-        const msgDiv = document.createElement('div');
-        msgDiv.style.position = 'fixed'; msgDiv.style.top = '0'; msgDiv.style.left = '0'; msgDiv.style.width = '100%'; msgDiv.style.height = '100%';
-        msgDiv.style.background = 'rgba(0,0,0,0.3)'; msgDiv.style.backdropFilter = 'blur(14px)'; msgDiv.style.zIndex = '3000';
-        msgDiv.style.display = 'flex'; msgDiv.style.alignItems = 'center'; msgDiv.style.justifyContent = 'center';
-        msgDiv.style.flexDirection = 'column'; msgDiv.style.color = 'white'; msgDiv.style.fontSize = 'clamp(2rem,10vw,4rem)';
-        msgDiv.innerHTML = 'I Can’t Lose You…<br><span style="font-size:2rem;">Thank You For Loving Me ❤️</span>';
-        document.body.appendChild(msgDiv);
-        setTimeout(() => { msgDiv.style.opacity = '0'; msgDiv.style.transition = '1.2s'; }, 2000);
-        setTimeout(() => msgDiv.remove(), 3300);
-        for(let p=0; p<20; p++) {
-          let pet = document.createElement('div');
-          pet.classList.add('petal'); pet.innerHTML = '🌸';
-          pet.style.left = Math.random()*100+'%'; pet.style.animationDuration=(Math.random()*4+3)+'s';
-          pet.style.fontSize=(Math.random()*30+20)+'px';
-          finalSec.appendChild(pet); setTimeout(() => pet.remove(), 6000);
-        }
-        const yay = document.createElement('div');
-        yay.innerText = 'Yayyyy I Love Youuuu 💖';
-        yay.style.position = 'fixed'; yay.style.bottom = '30%'; yay.style.left = '50%'; yay.style.transform = 'translateX(-50%)';
-        yay.style.background = 'white'; yay.style.padding = '1.5rem 2rem'; yay.style.borderRadius = '60px'; yay.style.zIndex = '3001';
-        yay.style.fontSize = '2.2rem'; yay.style.color = '#d43f6b'; yay.style.boxShadow = '0 0 55px pink';
-        document.body.appendChild(yay);
-        setTimeout(() => yay.remove(), 3800);
-      }, 300);
-      setTimeout(() => finalSec.classList.remove('shake'), 600);
-    });
+      <!-- Hadith -->
+      <div class="task-card hadith-card">
+        <div class="task-header">
+          <h3><i class="fas fa-scroll"></i> হাদিস</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="hadith">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">পড়েছি</span>
+          </div>
+        </div>
+        <p class="task-text">"যে কাজ আল্লাহর নাম ছাড়া শুরু করা হয়, তা বরকতহীন হয়।"</p>
+        <div class="card-footer">
+          <span class="card-tag">ইবনে মাজাহ</span>
+          <button class="btn-small" onclick="toggleHadithSection()">
+            <i class="fas fa-expand-alt"></i> বিস্তারিত
+          </button>
+        </div>
+      </div>
 
-    // extra petals for final
-    setInterval(() => {
-      if(document.getElementById('finalSection')) {
-        let pet = document.createElement('div');
-        pet.classList.add('petal'); pet.innerHTML = '🌹';
-        pet.style.left = Math.random()*100+'%'; pet.style.animationDuration=(Math.random()*6+4)+'s';
-        document.getElementById('finalSection').appendChild(pet);
-        setTimeout(() => pet.remove(), 7000);
-      }
-    }, 400);
+      <!-- Reflection -->
+      <div class="task-card reflection-card">
+        <div class="task-header">
+          <h3><i class="fas fa-brain"></i> আত্ম-সমীক্ষা</h3>
+          <div class="completion-hint">
+            <i class="fas fa-lightbulb"></i> প্রতিটি প্রশ্ন টিক দিন
+          </div>
+        </div>
+        <div class="reflection-questions">
+          <div class="reflection-item">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="reflection1">
+              <span class="checkmark"></span>
+            </label>
+            <span>আজ আমি কোন ভালো অভ্যাস শুরু করেছি?</span>
+          </div>
+          <div class="reflection-item">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="reflection2">
+              <span class="checkmark"></span>
+            </label>
+            <span>আজ কোন ভুল ঠিক করবো?</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-tag">সমীক্ষা</span>
+        </div>
+      </div>
 
-    // reveal observer for reasons (optional)
-    document.querySelectorAll('.reason-card').forEach(c => { c.style.transition = '0.3s'; });
-  </script>
+      <!-- Gratitude -->
+      <div class="task-card gratitude-card">
+        <div class="task-header">
+          <h3><i class="fas fa-heart"></i> কৃতজ্ঞতা</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="gratitude">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">করেছি</span>
+          </div>
+        </div>
+        <p class="task-text">আজ আমি কোন নেক কাজ বা কৃতজ্ঞতা প্রকাশ করেছি?</p>
+        <div class="card-footer">
+          <span class="card-tag">শুকরিয়া</span>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="task-card notes-card full-width">
+        <div class="task-header">
+          <h3><i class="fas fa-sticky-note"></i> দৈনিক নোটস</h3>
+          <button onclick="saveNotes()" class="btn-small">
+            <i class="fas fa-save"></i> সংরক্ষণ
+          </button>
+        </div>
+        <textarea id="daily-notes" placeholder="আজকের চিন্তাভাবনা, লক্ষ্য, অনুভূতি বা গুরুত্বপূর্ণ কিছু লিখুন..."></textarea>
+        <div class="notes-footer">
+          <span id="notes-count" class="char-count">0 characters</span>
+          <span class="hint-text"><i class="fas fa-info-circle"></i> স্বয়ংক্রিয়ভাবে সংরক্ষণ হয়</span>
+        </div>
+      </div>
+
+      <!-- Custom Habits Section -->
+      <div class="task-card habits-card full-width">
+        <div class="task-header">
+          <h3><i class="fas fa-tasks"></i> কাস্টমাইজেবল অভ্যাস ট্র্যাকার</h3>
+          <button onclick="toggleHabitsSection()" class="btn-small">
+            <i class="fas fa-plus"></i> যোগ করুন
+          </button>
+        </div>
+        
+        <!-- Add Habit Form (Initially Hidden) -->
+        <div id="add-habit-form" class="add-habit-form" style="display:none;">
+          <div class="form-row">
+            <input type="text" id="new-habit-name" placeholder="অভ্যাসের নাম (যেমন: ৩০ মিনিট ব্যায়াম)">
+            <input type="color" id="new-habit-color" value="#10b981" title="রং নির্বাচন">
+          </div>
+          <div class="form-row">
+            <select id="new-habit-icon">
+              <option value="🏃">🏃 ব্যায়াম</option>
+              <option value="📖">📖 কুরআন পড়া</option>
+              <option value="💧">💧 পানি পান</option>
+              <option value="🤲">🤲 সুন্নাহ নামাজ</option>
+              <option value="🕌">🕌 মসজিদে যাওয়া</option>
+            </select>
+            <button onclick="addNewHabit()" class="btn-small btn-success">
+              <i class="fas fa-plus"></i> যোগ করুন
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Habits List -->
+        <div class="habits-list" id="custom-habit-list">
+          <!-- Habits will be loaded here -->
+        </div>
+
+        <!-- Default Habits -->
+        <div class="default-habits">
+          <h4><i class="fas fa-star"></i> ডিফল্ট রমজান অভ্যাস</h4>
+          <div class="habit-items">
+            <div class="habit-item">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+                <input type="checkbox" id="default-habit1">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">পানি যথেষ্ট খাওয়া</span>
+              <span class="habit-icon">💧</span>
+            </div>
+            <div class="habit-item">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+                <input type="checkbox" id="default-habit2">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">কুরআন/দুআ পড়া</span>
+              <span class="habit-icon">📖</span>
+            </div>
+            <div class="habit-item">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+                <input type="checkbox" id="default-habit3">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">পরিবারের সাথে ভালো ব্যবহার</span>
+              <span class="habit-icon">❤️</span>
+            </div>
+            <div class="habit-item">
+              <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+                <input type="checkbox" id="default-habit4">
+                <span class="checkmark"></span>
+              </label>
+              <span class="habit-text">গীবত/মিথ্যা থেকে বাঁচা</span>
+              <span class="habit-icon">🚫</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Special Days -->
+      <div class="task-card special-card">
+        <div class="task-header">
+          <h3><i class="fas fa-calendar-star"></i> বিশেষ দিন</h3>
+          <div class="completion-indicator">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="special-day">
+              <span class="checkmark"></span>
+            </label>
+            <span class="completion-text">চেক করেছি</span>
+          </div>
+        </div>
+        <p class="task-text">আজ ১ম দিন। পরের ১০ দিন এক্সট্রা ইবাদত করতে পারো।</p>
+        <div class="card-footer">
+          <span class="card-tag">🌙 লাইলাতুল কদর</span>
+        </div>
+      </div>
+
+      <!-- Premium Tasks -->
+      <div class="task-card premium-card full-width">
+        <div class="task-header">
+          <h3><i class="fas fa-gem"></i> প্রিমিয়াম টাস্কস</h3>
+          <div class="completion-hint">
+            <i class="fas fa-check-circle"></i> প্রতিটি টাস্ক টিক দিন
+          </div>
+        </div>
+        <div class="premium-list">
+          <div class="premium-item">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="premium1">
+              <span class="checkmark"></span>
+            </label>
+            <span class="premium-text">তাহাজ্জুদ নামাজ পড়া</span>
+            <span class="premium-badge">💎</span>
+          </div>
+          <div class="premium-item">
+            <label class="checkbox-container" title="টিক দিন যখন সম্পন্ন করবেন">
+              <input type="checkbox" id="premium2">
+              <span class="checkmark"></span>
+            </label>
+            <span class="premium-text">এক্সট্রা কুরআন পড়া</span>
+            <span class="premium-badge">💎</span>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- End of Tasks Grid -->
+
+    <!-- Footer -->
+    <div class="app-footer">
+      <p>
+        <i class="fas fa-heart"></i> রমজান মুবারক 
+        <span class="separator">•</span> 
+        Prepared by Fuad Hassan Rabby
+      </p>
+      <p class="footer-note">আল্লাহ আপনার সকল ইবাদত কবুল করুন</p>
+    </div>
+
+  </div> <!-- End of Main Container -->
+
+</div> <!-- End of Planner Page -->
+
+<!-- Quran/Hadith Modal -->
+<div id="quran-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
-```

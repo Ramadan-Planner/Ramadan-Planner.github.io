@@ -1105,67 +1105,170 @@ function updateProgressMessageAnimation() {
   
   messageElement.appendChild(emojiSpan);
 }
-// District-wise Prayer Times Data
-const prayerTimesData = {
+
+//=============================================================================
+// DISTRICT SCHEDULE SYSTEM - সম্পূর্ণ নতুন কোড
+//=============================================================================
+
+// জেলার ডাটা - এখানে আপনার PDF/ছবির পাথ দিন
+const districtScheduleData = {
   dhaka: {
-    iftar: "18:45",
-    sehri_end: "04:35",
-    name: "ঢাকা"
+    name: 'ঢাকা',
+    file: {
+      type: 'pdf', // 'pdf' অথবা 'jpg'/'png'
+      path: 'schedules/dhaka-ramadan-schedule.pdf',
+      filename: 'dhaka-ramadan-schedule-2025.pdf'
+    }
   },
   chittagong: {
-    iftar: "18:40",
-    sehri_end: "04:30",
-    name: "চট্টগ্রাম"
+    name: 'চট্টগ্রাম',
+    file: {
+      type: 'pdf',
+      path: 'schedules/chittagong-ramadan-schedule.pdf',
+      filename: 'chittagong-ramadan-schedule-2025.pdf'
+    }
   },
   sylhet: {
-    iftar: "18:42",
-    sehri_end: "04:32",
-    name: "সিলেট"
+    name: 'সিলেট',
+    file: null // এখনো ফাইল নাই
   },
   rajshahi: {
-    iftar: "18:48",
-    sehri_end: "04:38",
-    name: "রাজশাহী"
+    name: 'রাজশাহী',
+    file: null
   },
   khulna: {
-    iftar: "18:43",
-    sehri_end: "04:33",
-    name: "খুলনা"
+    name: 'খুলনা',
+    file: null
   },
   barisal: {
-    iftar: "18:41",
-    sehri_end: "04:31",
-    name: "বরিশাল"
+    name: 'বরিশাল',
+    file: null
   },
   rangpur: {
-    iftar: "18:50",
-    sehri_end: "04:40",
-    name: "রংপুর"
+    name: 'রংপুর',
+    file: null
   },
   mymensingh: {
-    iftar: "18:44",
-    sehri_end: "04:34",
-    name: "ময়মনসিংহ"
+    name: 'ময়মনসিংহ',
+    file: null
   },
   comilla: {
-    iftar: "18:41",
-    sehri_end: "04:31",
-    name: "কুমিল্লা"
+    name: 'কুমিল্লা',
+    file: null
   },
   narsingdi: {
-    iftar: "18:46",
-    sehri_end: "04:36",
-    name: "নরসিংদী"
+    name: 'নরসিংদী',
+    file: null
   }
 };
 
-// Islamic Months in Bengali
-const hijriMonths = [
-  "মুহররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", 
-  "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", 
-  "রমজান", "শাওয়াল", "জিলকদ", "জিলহজ"
-];
+// সময়সূচী দেখুন ফাংশন
+function showDistrictSchedule() {
+  // এলিমেন্টগুলো খুঁজি
+  const select = document.getElementById('districtSelect');
+  const districtSpan = document.getElementById('selected-district');
+  const container = document.getElementById('scheduleContainer');
+  const footer = document.getElementById('scheduleFooter');
+  const btn = event ? event.target : document.querySelector('.view-schedule-btn');
+  
+  // জেলা চেক করি
+  if (!select || !select.value) {
+    alert('⚠️ অনুগ্রহ করে একটি জেলা নির্বাচন করুন!');
+    return;
+  }
+  
+  const districtCode = select.value;
+  const district = districtScheduleData[districtCode];
+  
+  if (!district) {
+    alert('⚠️ জেলার তথ্য পাওয়া যায়নি!');
+    return;
+  }
+  
+  // জেলার নাম আপডেট করি
+  if (districtSpan) {
+    districtSpan.textContent = district.name;
+  }
+  
+  // বাটনে লোডিং দেখাই
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> দেখাচ্ছে...';
+  btn.disabled = true;
+  
+  // একটু delay দিয়ে দেখাই
+  setTimeout(() => {
+    
+    // চেক করি ফাইল আছে কিনা
+    if (!district.file) {
+      // ফাইল নাই
+      container.innerHTML = `
+        <div class="coming-soon">
+          <i class="fas fa-clock"></i>
+          <h3>${district.name} জেলার সময়সূচী</h3>
+          <p>আমরা প্রস্তুতি নিচ্ছি...</p>
+          <div class="coming-soon-badge">
+            <i class="fas fa-hourglass-half"></i> ১-২ দিনের মধ্যে দেওয়া হবে
+          </div>
+        </div>
+      `;
+      footer.innerHTML = '';
+    } else {
+      // ফাইল আছে
+      const file = district.file;
+      
+      if (file.type === 'pdf') {
+        container.innerHTML = `
+          <iframe src="${file.path}#toolbar=1&navpanes=1&view=FitH" 
+                  class="schedule-frame" 
+                  title="${district.name} - রমজান সময়সূচী"></iframe>
+        `;
+      } else {
+        container.innerHTML = `
+          <img src="${file.path}" 
+               alt="${district.name} - রমজান সময়সূচী" 
+               class="schedule-image" 
+               onclick="openImageModal('${file.path}')"
+               style="cursor: pointer;">
+        `;
+      }
+      
+      footer.innerHTML = `
+        <a href="${file.path}" download="${file.filename}" class="download-btn">
+          <i class="fas fa-download"></i> ডাউনলোড করুন
+        </a>
+      `;
+    }
+    
+    // বাটন আগের অবস্থায় ফিরাই
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    
+  }, 500);
+}
 
+// ছবি বড় করে দেখার ফাংশন
+function openImageModal(src) {
+  const modal = document.getElementById('imageModal');
+  const img = document.getElementById('zoomedImage');
+  img.src = src;
+  modal.style.display = 'block';
+}
+
+function closeImageModal() {
+  document.getElementById('imageModal').style.display = 'none';
+}
+
+// পৃষ্ঠা লোড হওয়ার পর চেক করি
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('✅ District schedule system loaded');
+  
+  // টেস্ট করার জন্য কনসোল লগ
+  const select = document.getElementById('districtSelect');
+  const btn = document.querySelector('.view-schedule-btn');
+  
+  if (select) console.log('✅ District select found');
+  if (btn) console.log('✅ View button found');
+});
 // Update prayer times based on selected district
 function updatePrayerTimes() {
   const districtSelect = document.getElementById('district-select');
